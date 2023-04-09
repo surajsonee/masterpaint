@@ -1,0 +1,15 @@
+.style-wrapper:hover .style {
+  border: 2px solid #2c7dfa;
+  border-radius: 4px;
+}
+
+.style-wrapper:hover .style::after {
+  content: "";
+  display: block;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.24);
+  z-index: 9;
+  height: 100%;
+  width: 100%;
+  inset: 0;
+}
