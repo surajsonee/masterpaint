@@ -72,6 +72,7 @@ const Header = () => {
         <AuthForm
           signUp={openSignUpDialog ? true : false}
           setOpenSignUpDialog={setOpenSignUpDialog}
+          setDialogOpen={setDialogOpen}
         />
       </Dialog>
     </>

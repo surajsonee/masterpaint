@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardTabIcon from "@mui/icons-material/KeyboardTab";
 import CircularProgress from "@mui/joy/CircularProgress";
+import { convertBlobToBase64 } from "../../utils/helper";
 
 //image
 import noImage from "../../assests/images/noImage.png";
@@ -10,14 +11,6 @@ import { HomeContext } from "../../context/homeContext/HomeContext";
 
 const UploadImage = () => {
   const { selectedFile, setSelectedFile, loading } = useContext(HomeContext);
-
-  const convertBlobToBase64 = (blob) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
 
   const handleUpload = async (e) => {
     const base64data = await convertBlobToBase64(e.target.files[0]);
@@ -27,7 +20,7 @@ const UploadImage = () => {
   };
 
   return (
-    <div className="bg-[#f0f1f2] w-full flex h-[calc(100vh-56px)]">
+    <div className="bg-[#f0f1f2] w-[calc(100%-360px)] flex h-[calc(100vh-56px)]">
       {loading ? (
         <div className="flex justify-center w-full ">
           <CircularProgress className="self-center" />
@@ -83,7 +76,7 @@ const UploadImage = () => {
               Download
             </Button>
           </div>
-          <div className="py-[16px] px-[32px] h-[calc(100%-48px)] w-max mx-auto flex items-center">
+          <div className="py-[16px] px-[32px] h-[calc(100%-48px)] mx-auto flex items-center justify-center">
             <img
               src={selectedFile ? selectedFile : ""}
               alt=""

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -11,20 +11,24 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import Notification from "../notifications/Notification";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 // images
 import facebookIcon from "../../assests/images/facebook.svg";
 import googleIcon from "../../assests/images/google.svg";
 import appleIcon from "../../assests/images/apple.svg";
 import axios from "axios";
+import { errorMssg } from "../../utils/helper";
 
-const AuthForm = ({ signUp, setOpenSignUpDialog }) => {
+const AuthForm = ({ signUp, setOpenSignUpDialog, setDialogOpen }) => {
   const [registerWithEmail, setRegisterWithEmail] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formValues, setFormValues] = useState({
     email: "",
     password: "",
+    checked: false,
   });
+  const [loading, setLoading] = useState(false);
 
   //for notification
   const [openNotification, setOpenNotification] = useState(false);
@@ -36,8 +40,9 @@ const AuthForm = ({ signUp, setOpenSignUpDialog }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     if (signUp) {
-      const url = "https://masterpaint.pro:8000/user/v1/registration/";
+      const url = "http://masterpaint.pro:3000/user/v1/registration/";
       const data = {
         username: formValues.email,
         email: formValues.email,
@@ -46,45 +51,67 @@ const AuthForm = ({ signUp, setOpenSignUpDialog }) => {
       };
       try {
         const result = await axios.post(url, data);
-        console.log(result);
+        // console.log(result);
+        if (!result) return;
         setFormValues({
           email: "",
           password: "",
+          checked: false,
         });
+        setOpenSignUpDialog(false);
         setOpenNotification(true);
-        setNotificationType("Success");
+        setNotificationType("success");
         setNotificationMessage("Register Successfully");
       } catch (error) {
         console.log("error", error);
-        const errMssg = error?.response?.data;
         setOpenNotification(true);
         setNotificationType("error");
-        setNotificationMessage(errMssg?.email[0] || "Something went wrong!..");
+        // setNotificationMessage(
+        //   errMssg?.email
+        //     ? errMssg?.email[0]
+        //     : errMssg?.password1
+        //     ? errMssg?.password1[0]
+        //     : "Something went wrong!.."
+        // );
+        setNotificationMessage(errorMssg(error));
       }
     } else {
-      const url = " https://masterpaint.pro:8000/user/v1/login/";
+      const url = "http://masterpaint.pro:3000/user/v1/login/";
       const data = {
         username: formValues.email,
         password: formValues.password,
       };
       try {
         const result = await axios.post(url, data);
-        console.log(result);
+        // console.log("result", result);
+        if (!result) return;
         setFormValues({
           email: "",
           password: "",
+          checked: false,
         });
+        setDialogOpen(false);
         setOpenNotification(true);
-        setNotificationType("Success");
+        setNotificationType("success");
         setNotificationMessage("Login Successfully");
       } catch (error) {
         console.log("error", error);
         setOpenNotification(true);
         setNotificationType("error");
-        setNotificationMessage("Something went wrong!..");
+        setNotificationMessage(errorMssg(error));
       }
     }
+    setLoading(false);
   };
+
+  useEffect(() => {
+    setFormValues({
+      email: "",
+      password: "",
+      checked: false,
+    });
+    setLoading(false);
+  }, [signUp]);
 
   return (
     <>
@@ -94,7 +121,7 @@ const AuthForm = ({ signUp, setOpenSignUpDialog }) => {
         notificationType={notificationType}
         notificationMessage={notificationMessage}
       />
-      <div className="h-[540px] flex">
+      <div className="h-[540px] flex bg-white">
         <div className="w-[400px] px-[40px] shadow-[0 0 4px rgba(0, 0, 0, 0.1)] flex items-center">
           <div className="w-full">
             {signUp ? (
@@ -191,7 +218,7 @@ const AuthForm = ({ signUp, setOpenSignUpDialog }) => {
                   <TextField
                     required
                     // error
-                    type="email"
+                    // type="email"
                     // id="outlined"
                     label=""
                     variant="outlined"
@@ -250,7 +277,15 @@ const AuthForm = ({ signUp, setOpenSignUpDialog }) => {
                     className="flex flex-row items-center justify-between w-full"
                   >
                     <FormControlLabel
-                      control={<Checkbox required={signUp ? true : false} />}
+                      control={
+                        <Checkbox
+                          required={signUp ? true : false}
+                          value={formValues.checked}
+                          onChange={() =>
+                            setFormValues({ ...formValues, checked: true })
+                          }
+                        />
+                      }
                       label={signUp ? "" : "Remember me"}
                       sx={{
                         ".MuiCheckbox-root": {
@@ -279,21 +314,23 @@ const AuthForm = ({ signUp, setOpenSignUpDialog }) => {
                         </span>
                       </div>
                     ) : (
-                      <p className="cursor-pointer text-[11px] font-medium text-[#2c7dfa]">
+                      <p className="cursor-pointer text-[11px] font-medium text-[#2c7dfa] hover:underline">
                         Forget your password?
                       </p>
                     )}
                   </FormControl>
                 </div>
-                <Button
+                <LoadingButton
                   type="submit"
                   variant="contained"
                   className="my-[8px] bg-[#2c7dfa] text-white text-[13px] font-normal h-[40px] capitalize"
                   fullWidth
                   disableRipple
+                  loading={loading}
+                  disabled={loading}
                 >
-                  {signUp ? "Sign up" : "Sign In"}
-                </Button>
+                  {!loading && (signUp ? "Sign up" : "Sign In")}
+                </LoadingButton>
               </Box>
             )}
           </div>

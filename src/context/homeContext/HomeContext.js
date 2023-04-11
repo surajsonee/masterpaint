@@ -5,6 +5,7 @@ export const HomeContext = createContext();
 const HomeContextProvider = ({ children }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
   return (
     <HomeContext.Provider
@@ -13,6 +14,8 @@ const HomeContextProvider = ({ children }) => {
         setSelectedFile,
         loading,
         setLoading,
+        user,
+        setUser,
       }}
     >
       {children}
